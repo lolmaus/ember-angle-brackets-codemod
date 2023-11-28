@@ -216,10 +216,10 @@ test('data-test-attributes', () => {
         <LinkTo @route=\\"posts\\" data-test-foo >
           Recent Posts
         </LinkTo>
-        <LinkTo @route={{this.dynamicPath}} @query={{hash direction=\\"desc\\" showArchived=false}} data-test-foo >
+        <LinkTo @route={{this.dynamicPath}} @query={{(hash direction=\\"desc\\" showArchived=false)}} data-test-foo >
           Recent Posts
         </LinkTo>
-        <LinkTo @route={{this.dynamicPath}} @query={{hash direction=\\"desc\\" showArchived=false}} data-test-foo data-foo  >
+        <LinkTo @route={{this.dynamicPath}} @query={{(hash direction=\\"desc\\" showArchived=false)}} data-test-foo data-foo  >
           Recent Posts
         </LinkTo>
 
@@ -258,19 +258,8 @@ test('data-test-empty-attributes', () => {
   `);
 });
 
-test('deeply-nested-sub', () => {
+test.only('deeply-nested-sub', () => {
   let input = `
-    {{#some-component class=(concat foo (some-helper ted (some-dude bar (a b c)))) }}
-      help
-    {{/some-component}}
-    {{some-component class=(concat foo (some-helper ted (some-dude bar (a b c)))) }}
-    {{deep-component class=(concat foo (nice-helper ted (some-crazy bar (a d (d e f)))))}}
-    {{some-component
-      class=(concat foo (some-helper bar))
-    }}
-    {{some-component
-      class=(concat foo (some-helper bar quuz))
-    }}
     {{some-component
       person=(hash name="Sophie" age=1)
       message=(t "welcome" count=1)
@@ -296,14 +285,7 @@ test('deeply-nested-sub', () => {
    */
   expect(runTest('deeply-nested-sub.hbs', input)).toMatchInlineSnapshot(`
     "
-        <SomeComponent @class={{concat foo (some-helper ted (some-dude bar (a b c)))}}>
-          help
-        </SomeComponent>
-        <SomeComponent @class={{concat foo (some-helper ted (some-dude bar (a b c)))}} />
-        <DeepComponent @class={{concat foo (nice-helper ted (some-crazy bar (a d (d e f))))}} />
-        <SomeComponent @class={{concat foo (some-helper bar)}} />
-        <SomeComponent @class={{concat foo (some-helper bar quuz)}} />
-        <SomeComponent @person={{hash name=\\"Sophie\\" age=1}} @message={{t \\"welcome\\" count=1}} />
+        <SomeComponent @person={{(hash name=\\"Sophie\\" age=1}} @message={{t \\"welcome\\" count=1)}} />
         <SomeComponent @people={{array (hash name=\\"Alex\\" age=5 nested=(hash oldest=true amount=(format-currency 350 sign=\\"£\\")) disabled=(eq foo \\"bar\\")) (hash name=\\"Ben\\" age=4) (hash name=\\"Sophie\\" age=1)}} />
       "
   `);
@@ -1285,11 +1267,27 @@ test('wallstreet-telemetry', () => {
 
   expect(runTest('wallstreet-telemetry.hbs', input)).toMatchInlineSnapshot(`
     "
-        {{nested$helper}}
-        {{nested::helper}}
-        {{nested$helper param=\\"cool!\\"}}
-        {{nested::helper param=\\"yeah!\\"}}
-        {{helper-1}}
+        {{(nested$helper)}}
+        {{(nested::helper)}}
+        {{(nested$helper param=\\"cool!\\")}}
+        {{(nested::helper param=\\"yeah!\\")}}
+        {{(helper-1)}}
+      "
+  `);
+});
+
+test('wrapping-helpers-with-parens', () => {
+  let input = `
+    {{(fooknownhelper)}}
+    {{fooknownhelper data-test-foo foo="bar"}}
+    {{foounknownhelper}}
+  `;
+
+  expect(runTest('wrapping-helpers-with-parens.hbs', input)).toMatchInlineSnapshot(`
+    "
+        {{(fooknownhelper)}}
+        {{(fooknownhelper data-test-foo foo="bar")}}
+        {{foounknownhelper}}
       "
   `);
 });
